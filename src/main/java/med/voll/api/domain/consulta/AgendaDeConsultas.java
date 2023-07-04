@@ -3,6 +3,7 @@ package med.voll.api.domain.consulta;
 
 import med.voll.api.domain.ValidacaoException;
 import med.voll.api.domain.consulta.validacoes.ValidadorAgendamentoDeConsulta;
+import med.voll.api.domain.consulta.validacoes.ValidadorCancelamentoDeConsulta;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.domain.paciente.PacienteRepository;
@@ -25,6 +26,9 @@ public class AgendaDeConsultas {
 
     @Autowired
     private List<ValidadorAgendamentoDeConsulta> validadores;
+
+    @Autowired
+    private List<ValidadorCancelamentoDeConsulta> validadoresCancelamento;
 
     public DadosDetalhamentoConsulta agendar (DadosAgendamentoConsulta dados){
 
@@ -70,11 +74,23 @@ public class AgendaDeConsultas {
 
     public void cancelar(DadosCancelamentoConsulta dados) {
 
+
         if(!consultaRepository.existsById(dados.idConsulta())){
             throw new ValidacaoException("ID da consulta informado não existe");
         }
 
+        if(dados.motivoCancelamento() == null){
+            throw new ValidacaoException("É necessário informar o motivo do cancelamento");
+        }
+
+        validadoresCancelamento.forEach(v -> v.validar(dados));
+
+
         var consulta = consultaRepository.getReferenceById(dados.idConsulta());
+
+        if(consulta.getMotivoCancelamento() != null){
+            throw new ValidacaoException("Esta consulta já está cancelada!");
+        }
 
         consulta.cancelar(dados.motivoCancelamento());
 
