@@ -95,4 +95,6 @@ public class AgendaDeConsultas {
         consulta.cancelar(dados.motivoCancelamento());
 
     }
+
+
 }

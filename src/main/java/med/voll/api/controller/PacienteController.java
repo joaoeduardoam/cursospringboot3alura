@@ -1,11 +1,9 @@
 package med.voll.api.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import med.voll.api.domain.paciente.DadosListagemPaciente;
-import med.voll.api.domain.paciente.Paciente;
-import med.voll.api.domain.paciente.PacienteRepository;
-import med.voll.api.domain.medico.*;
+import med.voll.api.domain.ValidacaoException;
 import med.voll.api.domain.paciente.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RequestMapping("pacientes")
 @RestController
+@SecurityRequirement(name = "bearer-key")
 public class PacienteController {
 
     @Autowired
@@ -65,6 +64,10 @@ public class PacienteController {
     public ResponseEntity excluir(@PathVariable Long id){
 
         var paciente = repository.getReferenceById(id);
+
+        if (!paciente.isAtivo()){
+            throw new ValidacaoException("Paciente informado já está excluído!");
+        }
 
         paciente.excluir();
 
