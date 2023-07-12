@@ -89,7 +89,7 @@ public class AgendaDeConsultas {
         var consulta = consultaRepository.getReferenceById(dados.idConsulta());
 
         if(consulta.getMotivoCancelamento() != null){
-            throw new ValidacaoException("Esta consulta já está cancelada!");
+            throw new ValidacaoException("Esta consulta já está cancelada pelo motivo "+consulta.getMotivoCancelamento());
         }
 
         consulta.cancelar(dados.motivoCancelamento());
